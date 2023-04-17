@@ -1,13 +1,23 @@
+import io
 import json
+import numpy as np
+import matplotlib.pyplot as plt
+import string
 
 
-def load_annotations(json_path):
-    with open(json_path) as f:
-        json_object = json.load(f)
-        
-        annotations = json_object["annotations"]
+def show_image_caption(image, caption, save_path=None, show_fig=False):
+    # title_string = '\n'.join([caption[0] for caption in captions])
+    fig = plt.imshow(image)
+    plt.title(caption)
     
-    return annotations
+    if save_path is not None:
+        # plt.ioff()
+        plt.savefig(save_path)
+    
+    if show_fig:
+        plt.show()
+        
+    return fig
 
 def get_YN_answer(base_str, default=None):
     """ Get Yes or No input from user
