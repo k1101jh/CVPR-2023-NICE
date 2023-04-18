@@ -1,8 +1,14 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python
 
-datasets/
-configs/
+/datasets/
+/configs/
+/results/
+/runs/
+/pycocoevalcap/
+/pretrained_files/
+/training_outputs/
+/sample_coco_results/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
