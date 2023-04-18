@@ -1,3 +1,4 @@
+# from https://github.com/tylin/coco-caption/blob/master/get_stanford_models.sh
 #!/usr/bin/env sh
 # This script downloads the Stanford CoreNLP models.
 
