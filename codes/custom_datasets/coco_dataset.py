@@ -11,7 +11,7 @@ import random
 
 class COCOBaseDataset(Dataset):
     def __init__(self, img_dir, ann_file, vis_processor, text_processor):
-        super(Dataset, self).__init__()
+        super().__init__()
         self.img_dir = img_dir
         self.coco = COCO(ann_file)
         self.vis_processor = vis_processor
@@ -42,7 +42,7 @@ class COCOBaseDataset(Dataset):
 
 class COCOTrainDataset(COCOBaseDataset):
     def __init__(self, img_dir, ann_file, vis_processor, text_processor):
-        super(COCOTrainDataset, self).__init__(img_dir, ann_file, vis_processor, text_processor)
+        super().__init__(img_dir, ann_file, vis_processor, text_processor)
 
     def __getitem__(self, index):
         id = self.ids[index]
