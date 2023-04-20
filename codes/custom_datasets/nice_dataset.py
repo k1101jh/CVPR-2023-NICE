@@ -27,11 +27,10 @@ class NICETestDataset(data.Dataset):
         self.image_filename_list = os.listdir(self.img_dir)
         self.image_path_list = [os.path.join(self.img_dir, image_filename) for image_filename in self.image_filename_list]
         self.ds = Dataset.from_dict({'image': self.image_path_list}).cast_column("image", Image())
-        # self.ds = load_dataset("imagefolder", data_dir=img_dir, drop_labels=True)
-        # print(self.ds)
         
     def __getitem__(self, x):
         input = self.vis_processor(self.ds[x]['image'], return_tensors="pt")
+        input['pixel_values'] = input['pixel_values'].squeeze(0)
         label = self.image_filename_list[x].split('.')[0]
         return input, label
     
