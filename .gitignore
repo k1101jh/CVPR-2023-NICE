@@ -2,7 +2,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python
 
 /datasets/
-/configs/
 /results/
 /runs/
 /pycocoevalcap/

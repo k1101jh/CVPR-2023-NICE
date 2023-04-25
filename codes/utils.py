@@ -1,4 +1,7 @@
 import io
+import os
+import logging
+import torch
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,41 +12,270 @@ def show_image_caption(image, caption, save_path=None, show_fig=False):
     # title_string = '\n'.join([caption[0] for caption in captions])
     fig = plt.imshow(image)
     plt.title(caption)
-    
+
     if save_path is not None:
         # plt.ioff()
         plt.savefig(save_path)
-    
+
     if show_fig:
         plt.show()
-        
+
     return fig
 
-def get_YN_answer(base_str, default=None):
-    """ Get Yes or No input from user
 
-    Args:
-        default (Iterable, optional): Treats user's ENTER input as this value . Defaults to None.
+def get_device_map(checkpoint, devices):
+    device_map = {
+        "Salesforce/blip2-opt-2.7b": {
+            "query_tokens": devices[0],
+            "vision_model.embeddings": devices[0],
+            "vision_model.encoder.layers.0": devices[0],
+            "vision_model.encoder.layers.1": devices[0],
+            "vision_model.encoder.layers.2": devices[0],
+            "vision_model.encoder.layers.3": devices[0],
+            "vision_model.encoder.layers.4": devices[0],
+            "vision_model.encoder.layers.5": devices[0],
+            "vision_model.encoder.layers.6": devices[0],
+            "vision_model.encoder.layers.7": devices[0],
+            "vision_model.encoder.layers.8": devices[0],
+            "vision_model.encoder.layers.9": devices[0],
+            "vision_model.encoder.layers.10": devices[0],
+            "vision_model.encoder.layers.11": devices[0],
+            "vision_model.encoder.layers.12": devices[0],
+            "vision_model.encoder.layers.13": devices[0],
+            "vision_model.encoder.layers.14": devices[0],
+            "vision_model.encoder.layers.15": devices[0],
+            "vision_model.encoder.layers.16": devices[0],
+            "vision_model.encoder.layers.17": devices[0],
+            "vision_model.encoder.layers.18": devices[0],
+            "vision_model.encoder.layers.19": devices[0],
+            "vision_model.encoder.layers.20": devices[0],
+            "vision_model.encoder.layers.21": devices[0],
+            "vision_model.encoder.layers.22": devices[0],
+            "vision_model.encoder.layers.23": devices[0],
+            "vision_model.encoder.layers.24": devices[1],
+            "vision_model.encoder.layers.25": devices[1],
+            "vision_model.encoder.layers.26": devices[1],
+            "vision_model.encoder.layers.27": devices[1],
+            "vision_model.encoder.layers.28": devices[1],
+            "vision_model.encoder.layers.29": devices[1],
+            "vision_model.encoder.layers.30": devices[1],
+            "vision_model.encoder.layers.31": devices[1],
+            "vision_model.encoder.layers.32": devices[1],
+            "vision_model.encoder.layers.33": devices[1],
+            "vision_model.encoder.layers.34": devices[1],
+            "vision_model.encoder.layers.35": devices[1],
+            "vision_model.encoder.layers.36": devices[1],
+            "vision_model.encoder.layers.38": devices[1],
+            "vision_model.post_layernorm": devices[1],
+            "qformer": devices[1],
+            "language_projection": devices[1],
+            "language_model.model.decoder.embed_tokens": devices[1],
+            "language_model.lm_head": devices[1],
+            "language_model.model.decoder.embed_positions": devices[1],
+            "language_model.model.decoder.final_layer_norm": devices[1],
+            "language_model.model.decoder.layers.0": devices[2],
+            "language_model.model.decoder.layers.1": devices[2],
+            "language_model.model.decoder.layers.2": devices[2],
+            "language_model.model.decoder.layers.3": devices[2],
+            "language_model.model.decoder.layers.4": devices[2],
+            "language_model.model.decoder.layers.5": devices[2],
+            "language_model.model.decoder.layers.6": devices[2],
+            "language_model.model.decoder.layers.7": devices[2],
+            "language_model.model.decoder.layers.8": devices[2],
+            "language_model.model.decoder.layers.9": devices[2],
+            "language_model.model.decoder.layers.10": devices[2],
+            "language_model.model.decoder.layers.11": devices[2],
+            "language_model.model.decoder.layers.12": devices[2],
+            "language_model.model.decoder.layers.13": devices[2],
+            "language_model.model.decoder.layers.14": devices[2],
+            "language_model.model.decoder.layers.15": devices[2],
+            "language_model.model.decoder.layers.16": devices[2],
+            "language_model.model.decoder.layers.17": devices[2],
+            "language_model.model.decoder.layers.18": devices[2],
+            "language_model.model.decoder.layers.19": devices[2],
+            "language_model.model.decoder.layers.20": devices[2],
+            "language_model.model.decoder.layers.21": devices[2],
+            "language_model.model.decoder.layers.22": devices[2],
+            "language_model.model.decoder.layers.23": devices[2],
+            "language_model.model.decoder.layers.24": devices[2],
+            "language_model.model.decoder.layers.25": devices[2],
+            "language_model.model.decoder.layers.26": devices[2],
+            "language_model.model.decoder.layers.27": devices[2],
+            "language_model.model.decoder.layers.28": devices[2],
+            "language_model.model.decoder.layers.29": devices[2],
+            "language_model.model.decoder.layers.30": devices[2],
+            "language_model.model.decoder.layers.31": devices[2],
+            "vision_model.encoder.layers.37": devices[1]
+        },
+        "Salesforce/blip2-opt-2.7b-coco": {},
+        "Salesforce/blip2-opt-6.7b": {},
+        "Salesforce/blip2-opt-6.7b-coco": {},
+        "Salesforce/blip2-flan-t5-xl": {
+            "query_tokens": devices[0],
+            "vision_model.embeddings": devices[0],
+            "vision_model.encoder.layers.0": devices[0],
+            "vision_model.encoder.layers.1": devices[0],
+            "vision_model.encoder.layers.2": devices[0],
+            "vision_model.encoder.layers.3": devices[0],
+            "vision_model.encoder.layers.4": devices[0],
+            "vision_model.encoder.layers.5": devices[0],
+            "vision_model.encoder.layers.6": devices[0],
+            "vision_model.encoder.layers.7": devices[0],
+            "vision_model.encoder.layers.8": devices[0],
+            "vision_model.encoder.layers.9": devices[0],
+            "vision_model.encoder.layers.10": devices[0],
+            "vision_model.encoder.layers.11": devices[0],
+            "vision_model.encoder.layers.12": devices[0],
+            "vision_model.encoder.layers.13": devices[0],
+            "vision_model.encoder.layers.14": devices[0],
+            "vision_model.encoder.layers.15": devices[0],
+            "vision_model.encoder.layers.16": devices[0],
+            "vision_model.encoder.layers.17": devices[0],
+            "vision_model.encoder.layers.18": devices[0],
+            "vision_model.encoder.layers.19": devices[0],
+            "vision_model.encoder.layers.20": devices[0],
+            "vision_model.encoder.layers.21": devices[0],
+            "vision_model.encoder.layers.22": devices[0],
+            "vision_model.encoder.layers.23": devices[0],
+            "vision_model.encoder.layers.24": devices[0],
+            "vision_model.encoder.layers.25": devices[0],
+            "vision_model.encoder.layers.26": devices[1],
+            "vision_model.encoder.layers.27": devices[1],
+            "vision_model.encoder.layers.28": devices[1],
+            "vision_model.encoder.layers.29": devices[1],
+            "vision_model.encoder.layers.30": devices[1],
+            "vision_model.encoder.layers.31": devices[1],
+            "vision_model.encoder.layers.32": devices[1],
+            "vision_model.encoder.layers.33": devices[1],
+            "vision_model.encoder.layers.34": devices[1],
+            "vision_model.encoder.layers.35": devices[1],
+            "vision_model.encoder.layers.36": devices[1],
+            "vision_model.encoder.layers.37": devices[1],
+            "vision_model.encoder.layers.38": devices[1],
+            "vision_model.post_layernorm": devices[1],
+            "qformer": devices[1],
+            "language_projection": devices[1],
+            "language_model.shared": devices[1],
+            "language_model.decoder.embed_tokens": devices[1],
+            "language_model.encoder.embed_tokens": devices[1],
+            "language_model.encoder.block.0": devices[1],
+            "language_model.encoder.block.1": devices[1],
+            "language_model.encoder.block.2": devices[1],
+            "language_model.encoder.block.3": devices[1],
+            "language_model.encoder.block.4": devices[1],
+            "language_model.encoder.block.5": devices[1],
+            "language_model.encoder.block.6": devices[2],
+            "language_model.encoder.block.7": devices[2],
+            "language_model.encoder.block.8": devices[2],
+            "language_model.encoder.block.9": devices[2],
+            "language_model.encoder.block.10": devices[2],
+            "language_model.encoder.block.11": devices[2],
+            "language_model.encoder.block.12": devices[2],
+            "language_model.encoder.block.13": devices[2],
+            "language_model.encoder.block.14": devices[2],
+            "language_model.encoder.block.15": devices[2],
+            "language_model.encoder.block.16": devices[2],
+            "language_model.encoder.block.17": devices[2],
+            "language_model.encoder.block.18": devices[2],
+            "language_model.encoder.block.19": devices[2],
+            "language_model.encoder.block.20": devices[2],
+            "language_model.encoder.block.21": devices[2],
+            "language_model.encoder.block.22": devices[2],
+            "language_model.encoder.block.23": devices[3],
+            "language_model.encoder.final_layer_norm": devices[3],
+            "language_model.encoder.dropout": devices[3],
+            "language_model.decoder.block.0": devices[3],
+            "language_model.decoder.block.1": devices[3],
+            "language_model.decoder.block.2": devices[3],
+            "language_model.decoder.block.3": devices[3],
+            "language_model.decoder.block.4": devices[3],
+            "language_model.decoder.block.5": devices[3],
+            "language_model.decoder.block.6": devices[3],
+            "language_model.decoder.block.7": devices[3],
+            "language_model.decoder.block.8": devices[3],
+            "language_model.decoder.block.9": devices[3],
+            "language_model.decoder.block.10": devices[3],
+            "language_model.decoder.block.11": devices[3],
+            "language_model.decoder.block.12": devices[3],
+            "language_model.decoder.block.13": devices[3],
+            "language_model.decoder.block.14": devices[3],
+            "language_model.decoder.block.15": devices[3],
+            "language_model.decoder.block.16": devices[3],
+            "language_model.decoder.block.17": devices[3],
+            "language_model.decoder.block.18": devices[3],
+            "language_model.decoder.block.19": devices[3],
+            "language_model.decoder.block.20": devices[3],
+            "language_model.decoder.block.21": devices[3],
+            "language_model.decoder.block.22": devices[3],
+            "language_model.decoder.block.23": devices[3],
+            "language_model.decoder.final_layer_norm": devices[3],
+            "language_model.decoder.dropout": devices[3],
+            "language_model.lm_head": devices[1],
+        },
+        "Salesforce/blip2-flan-t5-xl-coco": {},
+        "Salesforce/blip2-flan-t5-xxl": {
+            "query_tokens": devices[0],
+            "vision_model": devices[0],
+            "qformer": devices[0],
+            "language_projection": devices[0],
+            "language_model.shared": devices[0],
+            "language_model.decoder.embed_tokens": devices[0],
+            "language_model.encoder.embed_tokens": devices[0],
+            "language_model.encoder.block.0": devices[0],
+            "language_model.encoder.block.1": devices[0],
+            "language_model.encoder.block.2": devices[0],
+            "language_model.encoder.block.3": devices[0],
+            "language_model.encoder.block.4": devices[0],
+            "language_model.encoder.block.5": devices[0],
+            "language_model.encoder.block.6": devices[0],
+            "language_model.encoder.block.7": devices[0],
+            "language_model.encoder.block.8": devices[0],
+            "language_model.encoder.block.9": devices[0],
+            "language_model.encoder.block.10": devices[0],
+            "language_model.encoder.block.11": devices[0],
+            "language_model.encoder.block.12": devices[0],
+            "language_model.encoder.block.13": devices[0],
+            "language_model.encoder.block.14": devices[0],
+            "language_model.encoder.block.15": devices[0],
+            "language_model.encoder.block.16": devices[1],
+            "language_model.encoder.block.17": devices[1],
+            "language_model.encoder.block.18": devices[1],
+            "language_model.encoder.block.19": devices[1],
+            "language_model.encoder.block.20": devices[1],
+            "language_model.encoder.block.21": devices[1],
+            "language_model.encoder.block.22": devices[1],
+            "language_model.encoder.block.23": devices[1],
+            "language_model.encoder.final_layer_norm": devices[1],
+            "language_model.encoder.dropout": devices[1],
+            "language_model.decoder.block.0": devices[1],
+            "language_model.decoder.block.1": devices[1],
+            "language_model.decoder.block.2": devices[1],
+            "language_model.decoder.block.3": devices[1],
+            "language_model.decoder.block.4": devices[1],
+            "language_model.decoder.block.5": devices[1],
+            "language_model.decoder.block.6": devices[2],
+            "language_model.decoder.block.7": devices[2],
+            "language_model.decoder.block.8": devices[2],
+            "language_model.decoder.block.9": devices[2],
+            "language_model.decoder.block.10": devices[2],
+            "language_model.decoder.block.11": devices[2],
+            "language_model.decoder.block.12": devices[2],
+            "language_model.decoder.block.13": devices[2],
+            "language_model.decoder.block.14": devices[2],
+            "language_model.decoder.block.15": devices[3],
+            "language_model.decoder.block.16": devices[3],
+            "language_model.decoder.block.17": devices[3],
+            "language_model.decoder.block.18": devices[3],
+            "language_model.decoder.block.19": devices[3],
+            "language_model.decoder.block.20": devices[3],
+            "language_model.decoder.block.21": devices[3],
+            "language_model.decoder.block.22": devices[3],
+            "language_model.decoder.block.23": devices[3],
+            "language_model.decoder.final_layer_norm": devices[3],
+            "language_model.decoder.dropout": devices[3],
+            "language_model.lm_head": devices[0]
+        },
 
-    Returns:
-        bool: if user input is Y, return True. else if user input is N, return False.
-    """
-    assert(default in ["Y", "y", "N", "n", None])
-    y_inputs = ["Y", "y"]
-    n_inputs = ["N", "n"]
-    
-    if default in y_inputs:
-        string_to_print = "(Y/n)>"
-    elif default in n_inputs:
-        string_to_print = "(y/N)>"
-    else:
-        string_to_print = "(y/n)>"
-    
-    while True:
-        inp = input(base_str + string_to_print)
-        if inp == "":
-            inp = default
-        if inp in y_inputs:
-            return True
-        elif inp in n_inputs:
-            return True
+    }
+
+    return device_map[checkpoint]
