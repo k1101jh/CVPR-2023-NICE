@@ -12,11 +12,10 @@ from datasets import Dataset, Image
 
 
 class NICETrainDataset(data.Dataset):
-    def __init__(self, img_dir, ann_file, processor, vis_processor, tokenizer):
+    def __init__(self, img_dir, ann_file, vis_processor, tokenizer, max_length):
         super().__init__()
         self.img_dir = img_dir
         self.ann_file = ann_file
-        self.processor = processor
         self.vis_processor = vis_processor
         self.tokenizer = tokenizer
         self.prompt = "a photo of "
@@ -38,11 +37,6 @@ class NICETrainDataset(data.Dataset):
             batched=True,
             batch_size=1000,
         )
-        
-        # prompt to tokens
-        # self.input_tokens = self.tokenizer(
-        #     self.prompt, padding='max_length', max_length=self.max_length, return_tensors='pt'
-        # )
 
     def train_batch_preprocess(self, batch):
         """ 여기서 prompt와 caption을 합치고 token으로 만든다.
@@ -56,6 +50,7 @@ class NICETrainDataset(data.Dataset):
             torch.tensors: prompt + caption을 token으로 변환한 결과
         """
         target_text = batch['caption_gt']
+        # 프롬프트를 dataset에서 합쳐야 한다면 주석 해제
         # target_text = [self.prompt + t for t in target_text]
         
         target = self.tokenizer(

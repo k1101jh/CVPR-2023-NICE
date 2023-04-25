@@ -3,6 +3,7 @@ import os
 import logging
 import torch
 import json
+from textwrap import wrap
 import numpy as np
 import matplotlib.pyplot as plt
 import string
@@ -21,6 +22,23 @@ def show_image_caption(image, caption, save_path=None, show_fig=False):
         plt.show()
 
     return fig
+
+def denormalize_image(normalized_image, mean, std):
+    image = normalized_image.transpose(1, 2, 0)
+    image = std * image + mean
+    image = np.clip(image, 0, 1)
+    
+    return image
+
+def plot_images(images, captions, wrap_width=16):
+    plt.figure(figsize=(20, 20))
+    for i in range(len(images)):
+        ax = plt.subplot(1, len(images), i + 1)
+        caption = captions[i]
+        caption = "\n".join(wrap(caption, wrap_width))
+        plt.title(caption)
+        plt.imshow(images[i])
+        plt.axis("off")
 
 
 def get_device_map(checkpoint, devices):
