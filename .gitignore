@@ -8,6 +8,7 @@
 /pretrained_files/
 /training_outputs/
 /sample_coco_results/
+/caches/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
