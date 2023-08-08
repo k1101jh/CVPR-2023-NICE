@@ -1,0 +1,7 @@
+/caches/
+.get_stanford_models.sh
+/runs/
+.cocoEvalCapDemo.ipynb
+/results/
+/saved_models/
+/training_outputs/

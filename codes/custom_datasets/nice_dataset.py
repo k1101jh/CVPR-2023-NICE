@@ -18,7 +18,6 @@ class NICETrainDataset(data.Dataset):
         self.ann_file = ann_file
         self.vis_processor = vis_processor
         self.tokenizer = tokenizer
-        self.prompt = "a photo of "
         self.max_length = 50
         train_df = pd.read_csv(self.ann_file)
         self.caption_ds = Dataset.from_pandas(train_df)
